@@ -1,50 +1,272 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import AppLayout from "../layouts/AppLayout.astro";
+
+const hoje = new Date();
+const hora = hoje.getHours();
+const saudacao =
+  hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+
+const diaSemana = hoje.toLocaleDateString("pt-BR", { weekday: "long" });
+const dataFormatada = hoje.toLocaleDateString("pt-BR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+const tarefasHoje = [
+  { id: 1, texto: "Verificar novos editais do Detran SP", prioridade: "high", feita: false },
+  { id: 2, texto: "Revisar material de estudo – Legislação de Trânsito", prioridade: "high", feita: false },
+  { id: 3, texto: "Responder e-mails do trabalho", prioridade: "medium", feita: true },
+  { id: 4, texto: "Atualizar planilha de receitas", prioridade: "medium", feita: false },
+  { id: 5, texto: "Leitura: tendências de mercado digital", prioridade: "low", feita: false },
+];
+
+const alertasRecentes = [
+  {
+    tipo: "success",
+    icone: "🎉",
+    titulo: "Novo edital detectado!",
+    descricao: "Detran SP publicou edital para CFCs – Prazo de inscrição: 15/07/2025",
+    tempo: "2h atrás",
+  },
+  {
+    tipo: "info",
+    icone: "📋",
+    titulo: "Verificação agendada",
+    descricao: "Próxima verificação automática em 4 fontes: hoje às 18h",
+    tempo: "5h atrás",
+  },
+  {
+    tipo: "warning",
+    icone: "⏰",
+    titulo: "Prazo se aproximando",
+    descricao: "Concurso Detran MG – Inscrições encerram em 3 dias (02/07/2025)",
+    tempo: "Ontem",
+  },
+];
+
+const insights = [
+  {
+    titulo: "E-commerce cresce 24% no 1º semestre",
+    categoria: "Mercado Digital",
+    corpo: "Setor de logística e entregas apresenta maior demanda de motoristas habilitados.",
+    metrica: "+24%",
+    positivo: true,
+    data: "Hoje",
+  },
+  {
+    titulo: "Frota de aplicativos expande no interior",
+    categoria: "Oportunidade",
+    corpo: "Cidades médias atraem novos motoristas de app – mercado pouco explorado.",
+    metrica: "Alta demanda",
+    positivo: true,
+    data: "Ontem",
+  },
+];
+
+const tarefasDone = tarefasHoje.filter((t) => t.feita).length;
+const progressoPct = Math.round((tarefasDone / tarefasHoje.length) * 100);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<AppLayout
+  title={`${saudacao}, Fabio! 👋`}
+  subtitle={`${diaSemana}, ${dataFormatada}`}
+  notificationCount={3}
+>
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">🔍</div>
+      <div class="stat-info">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Fontes monitoradas</div>
+        <div class="stat-change up">↑ 1 novo edital hoje</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-info">
+        <div class="stat-value">{tarefasHoje.filter((t) => !t.feita).length}</div>
+        <div class="stat-label">Tarefas pendentes</div>
+        <div class="stat-change neutral">{tarefasDone} concluídas</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon amber">📊</div>
+      <div class="stat-info">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Insights novos</div>
+        <div class="stat-change up">↑ Oportunidades identificadas</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon red">⏰</div>
+      <div class="stat-info">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Prazo próximo</div>
+        <div class="stat-change down">⚠ Detran MG em 3 dias</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid principal -->
+  <div class="page-grid">
+    <!-- Alertas recentes -->
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">🚨 Alertas Recentes</div>
+        <a href="/monitoramento" class="card-action">Ver monitoramento →</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        {alertasRecentes.map((alerta) => (
+          <div class={`alert alert-${alerta.tipo}`}>
+            <span class="alert-icon">{alerta.icone}</span>
+            <div class="alert-content">
+              <div class="alert-title">{alerta.titulo}</div>
+              <div class="alert-desc">{alerta.descricao}</div>
+            </div>
+            <span class="text-xs text-dim" style="white-space:nowrap;">{alerta.tempo}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Tarefas de hoje -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✅ Tarefas de Hoje</div>
+        <a href="/tarefas" class="card-action">Ver todas →</a>
+      </div>
+      <div class="task-list" id="task-list">
+        {tarefasHoje.map((tarefa) => (
+          <div class={`task-item${tarefa.feita ? " done" : ""}`} data-id={String(tarefa.id)}>
+            <button
+              class={`task-check${tarefa.feita ? " checked" : ""}`}
+              onclick="toggleTask(this)"
+              aria-label="Marcar como concluída"
+            ></button>
+            <span class="task-text">{tarefa.texto}</span>
+            <span class={`task-priority priority-${tarefa.prioridade}`}></span>
+          </div>
+        ))}
+      </div>
+      <div class="mt-3">
+        <div class="progress-bar">
+          <div class="progress-fill green" style={`width: ${progressoPct}%`}></div>
+        </div>
+        <div class="text-xs text-muted mt-1">
+          {tarefasDone} de {tarefasHoje.length} tarefas concluídas
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Insights de Hoje</div>
+        <a href="/insights" class="card-action">Ver todos →</a>
+      </div>
+      <div class="insight-grid">
+        {insights.map((insight) => (
+          <div class={`insight-card ${insight.positivo ? "trend-up" : "trend-down"}`}>
+            <div class="insight-header">
+              <div class="insight-title">{insight.titulo}</div>
+              <span class="badge badge-blue">{insight.categoria}</span>
+            </div>
+            <div class="insight-body">{insight.corpo}</div>
+            <div class="insight-footer">
+              <span class={`insight-metric ${insight.positivo ? "positive" : "negative"}`}>
+                {insight.positivo ? "↑" : "↓"} {insight.metrica}
+              </span>
+              <span class="insight-date">{insight.data}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Ações rápidas -->
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">⚡ Ações Rápidas</div>
+      </div>
+      <div class="quick-actions">
+        <a href="/monitoramento" class="quick-action">
+          <span class="quick-action-icon">🔍</span>
+          <span class="quick-action-label">Ver Editais</span>
+        </a>
+        <a href="/tarefas" class="quick-action">
+          <span class="quick-action-icon">📝</span>
+          <span class="quick-action-label">Nova Tarefa</span>
+        </a>
+        <a href="/tarefas#estudo" class="quick-action">
+          <span class="quick-action-icon">📚</span>
+          <span class="quick-action-label">Lista de Estudo</span>
+        </a>
+        <a href="/insights" class="quick-action">
+          <span class="quick-action-icon">📈</span>
+          <span class="quick-action-label">Ver Insights</span>
+        </a>
+        <a href="/notificacoes" class="quick-action">
+          <span class="quick-action-icon">🔔</span>
+          <span class="quick-action-label">Notificações</span>
+        </a>
+        <a href="/ia" class="quick-action" style="border-color:rgba(37,99,235,0.4);background:rgba(37,99,235,0.08);">
+          <span class="quick-action-icon">🤖</span>
+          <span class="quick-action-label" style="color:var(--primary-light);">Falar com IA</span>
+        </a>
+        <button class="quick-action" id="btn-check">
+          <span class="quick-action-icon" id="check-icon">🔄</span>
+          <span class="quick-action-label" id="check-label">Verificar Agora</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</AppLayout>
+
+<script>
+  function toggleTask(btn: HTMLElement) {
+    const item = btn.closest(".task-item") as HTMLElement;
+    btn.classList.toggle("checked");
+    item.classList.toggle("done");
+    const taskText = item.querySelector(".task-text") as HTMLElement;
+    if (item.classList.contains("done")) {
+      taskText.style.textDecoration = "line-through";
+      taskText.style.color = "var(--text-dim)";
+    } else {
+      taskText.style.textDecoration = "";
+      taskText.style.color = "";
+    }
+  }
+
+  const btnCheck = document.getElementById("btn-check");
+  const checkIcon = document.getElementById("check-icon");
+  const checkLabel = document.getElementById("check-label");
+
+  btnCheck?.addEventListener("click", async () => {
+    if (!checkIcon || !checkLabel) return;
+    checkIcon.textContent = "⏳";
+    checkLabel.textContent = "Verificando...";
+    btnCheck.style.borderColor = "var(--primary)";
+    try {
+      await fetch("/api/editais");
+      checkIcon.textContent = "✅";
+      checkLabel.textContent = "Concluído!";
+      btnCheck.style.borderColor = "var(--secondary)";
+    } catch {
+      checkIcon.textContent = "❌";
+      checkLabel.textContent = "Erro";
+    } finally {
+      setTimeout(() => {
+        checkIcon.textContent = "🔄";
+        checkLabel.textContent = "Verificar Agora";
+        btnCheck.style.borderColor = "";
+      }, 3000);
+    }
+  });
+
+  (window as unknown as Record<string, unknown>).toggleTask = toggleTask;
+</script>

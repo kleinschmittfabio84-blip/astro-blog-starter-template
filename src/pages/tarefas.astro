@@ -1,0 +1,343 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+
+const hoje = new Date().toLocaleDateString("pt-BR");
+
+const tarefas = [
+  { id: 1, texto: "Verificar novos editais do Detran SP", prioridade: "high", categoria: "concurso", feita: false, prazo: "Hoje" },
+  { id: 2, texto: "Revisar material – Legislação de Trânsito cap. 4", prioridade: "high", categoria: "estudo", feita: false, prazo: "Hoje" },
+  { id: 3, texto: "Responder e-mails do trabalho", prioridade: "medium", categoria: "trabalho", feita: true, prazo: "Hoje" },
+  { id: 4, texto: "Atualizar planilha de receitas/despesas", prioridade: "medium", categoria: "financas", feita: false, prazo: "Hoje" },
+  { id: 5, texto: "Leitura: tendências de mercado digital", prioridade: "low", categoria: "negocios", feita: false, prazo: "Hoje" },
+  { id: 6, texto: "Renovar documentos do veículo", prioridade: "medium", categoria: "pessoal", feita: false, prazo: "30/07/2025" },
+  { id: 7, texto: "Pesquisar cursos de habilitação CFC", prioridade: "low", categoria: "concurso", feita: false, prazo: "Esta semana" },
+];
+
+const listaEstudo = [
+  { topico: "Legislação de Trânsito", subtopicos: ["Sinalização vertical", "Sinalização horizontal", "Semáforos e preferências"], progresso: 65 },
+  { topico: "Direção Defensiva", subtopicos: ["Técnicas de ultrapassagem", "Distância segura", "Condução noturna"], progresso: 40 },
+  { topico: "Primeiros Socorros no Trânsito", subtopicos: ["Atendimento ao acidentado", "Posição lateral de segurança", "Acionamento do SAMU"], progresso: 20 },
+  { topico: "Mecânica Básica do Veículo", subtopicos: ["Verificações diárias", "Pneus e calibragem", "Fluidos essenciais"], progresso: 80 },
+];
+
+const appsRapidos = [
+  { nome: "Gmail", icone: "📧", url: "https://mail.google.com", cor: "red" },
+  { nome: "Google Drive", icone: "💾", url: "https://drive.google.com", cor: "blue" },
+  { nome: "Google Calendar", icone: "📅", url: "https://calendar.google.com", cor: "blue" },
+  { nome: "WhatsApp Web", icone: "💬", url: "https://web.whatsapp.com", cor: "green" },
+  { nome: "Detran SP", icone: "🚗", url: "https://www.detran.sp.gov.br", cor: "blue" },
+  { nome: "Banco do Brasil", icone: "🏦", url: "https://www.bb.com.br", cor: "amber" },
+];
+---
+
+<AppLayout
+  title="Tarefas & Organização"
+  subtitle="Gerencie suas tarefas diárias, estudos e lembretes"
+  notificationCount={3}
+>
+  <!-- Form nova tarefa -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header">
+      <div class="card-title">➕ Nova Tarefa</div>
+    </div>
+    <form id="form-nova-tarefa">
+      <div class="form-row">
+        <div class="form-group" style="flex:3;">
+          <input
+            type="text"
+            class="form-input"
+            name="texto"
+            placeholder="Descreva a tarefa..."
+            required
+          />
+        </div>
+        <div class="form-group">
+          <select class="form-input" name="prioridade">
+            <option value="high">🔴 Alta</option>
+            <option value="medium" selected>🟡 Média</option>
+            <option value="low">🟢 Baixa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select class="form-input" name="categoria">
+            <option value="concurso">Concurso</option>
+            <option value="estudo">Estudo</option>
+            <option value="trabalho">Trabalho</option>
+            <option value="pessoal">Pessoal</option>
+            <option value="financas">Finanças</option>
+            <option value="negocios">Negócios</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="date" class="form-input" name="prazo" />
+        </div>
+        <div class="form-group" style="flex:0;">
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="page-grid">
+    <!-- Lista de tarefas -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Tarefas ({hoje})</div>
+        <div style="display:flex;gap:0.4rem;">
+          <button class="btn btn-secondary btn-sm" id="filtro-todas">Todas</button>
+          <button class="btn btn-secondary btn-sm" id="filtro-pendentes">Pendentes</button>
+          <button class="btn btn-secondary btn-sm" id="filtro-concluidas">Concluídas</button>
+        </div>
+      </div>
+      <div class="task-list" id="task-list-full">
+        {tarefas.map((tarefa) => (
+          <div
+            class={`task-item${tarefa.feita ? " done" : ""}`}
+            data-id={String(tarefa.id)}
+            data-feita={tarefa.feita ? "1" : "0"}
+          >
+            <button
+              class={`task-check${tarefa.feita ? " checked" : ""}`}
+              aria-label="Marcar tarefa"
+            ></button>
+            <span class="task-text">{tarefa.texto}</span>
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;">
+              <span class={`badge ${
+                tarefa.categoria === "concurso" ? "badge-blue" :
+                tarefa.categoria === "estudo" ? "badge-purple" :
+                tarefa.categoria === "trabalho" ? "badge-amber" :
+                tarefa.categoria === "financas" ? "badge-green" :
+                "badge-gray"
+              }`}>{tarefa.categoria}</span>
+              <span class="text-xs text-dim">{tarefa.prazo}</span>
+              <span class={`task-priority priority-${tarefa.prioridade}`}></span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Apps rápidos -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚡ Acesso Rápido a Apps</div>
+      </div>
+      <div class="quick-actions" style="grid-template-columns:repeat(3,1fr);">
+        {appsRapidos.map((app) => (
+          <a href={app.url} target="_blank" rel="noopener" class="quick-action">
+            <span class="quick-action-icon">{app.icone}</span>
+            <span class="quick-action-label">{app.nome}</span>
+          </a>
+        ))}
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Organizador de arquivos -->
+      <div class="card-title" style="margin-bottom:0.75rem;">🗂️ Organização de Arquivos</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        {[
+          { icone: "📄", nome: "Documentos Pessoais", desc: "RG, CPF, certidões" },
+          { icone: "🚗", nome: "Documentos do Veículo", desc: "CRLV, seguro, multas" },
+          { icone: "📚", nome: "Material de Estudo", desc: "PDFs, apostilas, simulados" },
+          { icone: "💰", nome: "Finanças", desc: "Extratos, recibos, boletos" },
+        ].map((pasta) => (
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all 0.2s;"
+            onmouseover="this.style.borderColor='var(--primary)'"
+            onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.1rem;">{pasta.icone}</span>
+            <div>
+              <div style="font-size:0.85rem;font-weight:600;color:var(--text);">{pasta.nome}</div>
+              <div class="text-xs text-dim">{pasta.desc}</div>
+            </div>
+            <a href="https://drive.google.com" target="_blank" class="btn btn-secondary btn-sm" style="margin-left:auto;">Abrir →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Lista de estudo -->
+    <div class="card col-span-2" id="estudo">
+      <div class="card-header">
+        <div class="card-title">📚 Lista de Estudo – Habilitação</div>
+        <span class="badge badge-blue">Foco: CNH A/B</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        {listaEstudo.map((item) => (
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+              <div style="font-size:0.95rem;font-weight:600;color:var(--text);">{item.topico}</div>
+              <span style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">{item.progresso}%</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:0.75rem;">
+              <div
+                class={`progress-fill ${item.progresso >= 70 ? "green" : item.progresso >= 40 ? "amber" : "blue"}`}
+                style={`width:${item.progresso}%`}
+              ></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+              {item.subtopicos.map((sub) => (
+                <span class="badge badge-gray">{sub}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style="margin-top:1rem;padding:1rem;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:8px;">
+        <div style="font-size:0.875rem;font-weight:600;color:var(--primary-light);margin-bottom:0.4rem;">💡 Dica de Hoje</div>
+        <div class="text-sm text-muted">
+          Dedique pelo menos 30 minutos diários ao estudo de Legislação de Trânsito. Use simulados online para identificar seus pontos fracos antes da prova teórica.
+        </div>
+      </div>
+    </div>
+
+    <!-- Email rápido -->
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">📧 Enviar E-mail Rápido</div>
+      </div>
+      <form id="form-email" style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div class="form-row">
+          <div class="form-group" style="flex:2;">
+            <label class="form-label">Destinatário</label>
+            <input type="email" class="form-input" name="para" placeholder="destinatario@email.com" />
+          </div>
+          <div class="form-group" style="flex:3;">
+            <label class="form-label">Assunto</label>
+            <input type="text" class="form-input" name="assunto" placeholder="Assunto do e-mail" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mensagem</label>
+          <textarea class="form-input" name="mensagem" rows="3" placeholder="Escreva sua mensagem..."></textarea>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">📤 Enviar via API</button>
+          <span class="text-xs text-dim" style="margin-left:1rem;">
+            Enviado pelo sistema FabioAI via Resend API
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</AppLayout>
+
+<script>
+  // Toggle tasks
+  document.querySelectorAll<HTMLButtonElement>(".task-check").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".task-item") as HTMLElement;
+      btn.classList.toggle("checked");
+      item.classList.toggle("done");
+      const taskText = item.querySelector(".task-text") as HTMLElement;
+      if (item.classList.contains("done")) {
+        taskText.style.textDecoration = "line-through";
+        taskText.style.color = "var(--text-dim)";
+        item.setAttribute("data-feita", "1");
+      } else {
+        taskText.style.textDecoration = "";
+        taskText.style.color = "";
+        item.setAttribute("data-feita", "0");
+      }
+    });
+  });
+
+  // Filters
+  document.getElementById("filtro-todas")?.addEventListener("click", () => {
+    document.querySelectorAll<HTMLElement>(".task-item").forEach((el) => {
+      el.style.display = "";
+    });
+  });
+
+  document.getElementById("filtro-pendentes")?.addEventListener("click", () => {
+    document.querySelectorAll<HTMLElement>(".task-item").forEach((el) => {
+      el.style.display = el.getAttribute("data-feita") === "1" ? "none" : "";
+    });
+  });
+
+  document.getElementById("filtro-concluidas")?.addEventListener("click", () => {
+    document.querySelectorAll<HTMLElement>(".task-item").forEach((el) => {
+      el.style.display = el.getAttribute("data-feita") === "0" ? "none" : "";
+    });
+  });
+
+  // Nova tarefa
+  const formTarefa = document.getElementById("form-nova-tarefa") as HTMLFormElement;
+  formTarefa?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(formTarefa);
+    const texto = formData.get("texto") as string;
+    const prioridade = formData.get("prioridade") as string;
+    const prazo = formData.get("prazo") as string;
+
+    const taskList = document.getElementById("task-list-full");
+    if (taskList && texto) {
+      const item = document.createElement("div");
+      item.className = "task-item";
+      item.setAttribute("data-feita", "0");
+      item.innerHTML = `
+        <button class="task-check" aria-label="Marcar tarefa"></button>
+        <span class="task-text">${texto}</span>
+        <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;">
+          <span class="text-xs text-dim">${prazo || "Hoje"}</span>
+          <span class="task-priority priority-${prioridade}"></span>
+        </div>
+      `;
+      item.querySelector(".task-check")?.addEventListener("click", function () {
+        const btn = this as HTMLElement;
+        btn.classList.toggle("checked");
+        item.classList.toggle("done");
+        const t = item.querySelector(".task-text") as HTMLElement;
+        if (item.classList.contains("done")) {
+          t.style.textDecoration = "line-through";
+          t.style.color = "var(--text-dim)";
+        } else {
+          t.style.textDecoration = "";
+          t.style.color = "";
+        }
+      });
+      taskList.prepend(item);
+      formTarefa.reset();
+    }
+  });
+
+  // Email form
+  const formEmail = document.getElementById("form-email") as HTMLFormElement;
+  formEmail?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(formEmail);
+    const submitBtn = formEmail.querySelector('[type="submit"]') as HTMLButtonElement;
+    const original = submitBtn.textContent;
+    submitBtn.textContent = "⏳ Enviando...";
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch("/api/notificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          para: fd.get("para"),
+          assunto: fd.get("assunto"),
+          mensagem: fd.get("mensagem"),
+          tipo: "email",
+        }),
+      });
+      const data = await res.json() as { success: boolean };
+      if (data.success) {
+        submitBtn.textContent = "✅ E-mail enviado!";
+        formEmail.reset();
+      } else {
+        submitBtn.textContent = "❌ Erro ao enviar";
+      }
+    } catch {
+      submitBtn.textContent = "❌ Erro na conexão";
+    } finally {
+      setTimeout(() => {
+        submitBtn.textContent = original ?? "📤 Enviar";
+        submitBtn.disabled = false;
+      }, 3000);
+    }
+  });
+</script>

@@ -1,0 +1,244 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+
+const insights = [
+  {
+    id: 1,
+    titulo: "E-commerce brasileiro cresce 24% no 1º semestre",
+    categoria: "Mercado Digital",
+    tendencia: "up",
+    metrica: "+24% ao ano",
+    corpo: "O crescimento acelerado do e-commerce nacional gera alta demanda por motoristas habilitados e serviços de entrega last-mile. Oportunidade para quem tem CNH e quer empreender na área de logística.",
+    acao: "Pesquisar franquias de entrega",
+    fonte: "SEBRAE Brasil",
+    data: "29/06/2025",
+    tags: ["e-commerce", "logística", "entrega"],
+  },
+  {
+    id: 2,
+    titulo: "Aplicativos de transporte expandem para cidades de médio porte",
+    categoria: "Oportunidade",
+    tendencia: "opportunity",
+    metrica: "Mercado pouco explorado",
+    corpo: "Uber, 99 e inDrive estão incentivando motoristas em cidades com 100k-500k habitantes. Bônus de entrada chegam a R$2.000 em regiões estratégicas. Habilitação categoria B é requisito mínimo.",
+    acao: "Ver cidades disponíveis",
+    fonte: "G1 Economia",
+    data: "28/06/2025",
+    tags: ["mobilidade", "renda extra", "apps"],
+  },
+  {
+    id: 3,
+    titulo: "Detrans ampliam credenciamento de CFCs após aprovação de nova lei",
+    categoria: "Concursos/Editais",
+    tendencia: "up",
+    metrica: "+180 novas vagas",
+    corpo: "Com a sanção da nova lei de trânsito, Detrans de 12 estados abriram processo de credenciamento de Centros de Formação de Condutores. Editais seguem modelo padronizado e prazos são curtos.",
+    acao: "Ver editais ativos",
+    fonte: "Denatran Oficial",
+    data: "27/06/2025",
+    tags: ["detran", "CFC", "habilitação", "lei"],
+  },
+  {
+    id: 4,
+    titulo: "Serviços de motoboy crescem 35% em São Paulo",
+    categoria: "Tendência",
+    tendencia: "up",
+    metrica: "+35% em SP",
+    corpo: "Demanda por entregadores de moto cresce junto com o food delivery. Plataformas como iFood e Rappi aumentaram o repasse por corrida em regiões periféricas. CNH A é obrigatória.",
+    acao: "Calcular renda potencial",
+    fonte: "Abrappe",
+    data: "26/06/2025",
+    tags: ["motoboy", "delivery", "food tech"],
+  },
+  {
+    id: 5,
+    titulo: "Alta na taxa SELIC reduz crédito para compra de veículos",
+    categoria: "Alerta Financeiro",
+    tendencia: "down",
+    metrica: "-18% financiamentos",
+    corpo: "Juros mais altos dificultam financiamento de veículos para novos motoristas. Alternativa: leasing e assinatura de carros para motoristas de app crescem como alternativa viável.",
+    acao: "Comparar alternativas",
+    fonte: "Banco Central",
+    data: "25/06/2025",
+    tags: ["finanças", "veículo", "crédito"],
+  },
+  {
+    id: 6,
+    titulo: "Crescimento do mercado de cursos preparatórios online para CNH",
+    categoria: "Oportunidade",
+    tendencia: "opportunity",
+    metrica: "ROI alto",
+    corpo: "Plataformas de simulado online para habilitação cresceram 200% desde 2023. Oportunidade para criar conteúdo ou revender materiais preparatórios com custo baixo de entrada.",
+    acao: "Pesquisar plataformas",
+    fonte: "Ebit Nielsen",
+    data: "24/06/2025",
+    tags: ["educação", "CNH", "conteúdo digital"],
+  },
+];
+
+const categorias = [...new Set(insights.map((i) => i.categoria))];
+
+const metricasMercado = [
+  { label: "Motoristas ativos apps (BR)", valor: "1.8M", variacao: "+12%", up: true },
+  { label: "Editais Detran abertos", valor: "47", variacao: "+8 este mês", up: true },
+  { label: "Ticket médio entrega SP", valor: "R$12,40", variacao: "+3,2%", up: true },
+  { label: "Taxa de aprovação CNH (BR)", valor: "52%", variacao: "-1,5%", up: false },
+];
+---
+
+<AppLayout
+  title="Insights de Negócios"
+  subtitle="Tendências de mercado e oportunidades identificadas pela IA"
+  notificationCount={3}
+>
+  <!-- Métricas rápidas -->
+  <div class="stats-grid" style="margin-bottom:1.25rem;">
+    {metricasMercado.map((m) => (
+      <div class="stat-card">
+        <div class={`stat-icon ${m.up ? "green" : "red"}`}>{m.up ? "📈" : "📉"}</div>
+        <div class="stat-info">
+          <div class="stat-value" style="font-size:1.3rem;">{m.valor}</div>
+          <div class="stat-label">{m.label}</div>
+          <div class={`stat-change ${m.up ? "up" : "down"}`}>{m.variacao}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;" id="filtros-insight">
+    <button class="btn btn-primary btn-sm active-filter" data-categoria="todas">Todas</button>
+    {categorias.map((cat) => (
+      <button class="btn btn-secondary btn-sm" data-categoria={cat}>{cat}</button>
+    ))}
+  </div>
+
+  <!-- Grid de insights -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem;" id="insights-grid">
+    {insights.map((insight) => (
+      <div
+        class={`card insight-full-card`}
+        data-categoria={insight.categoria}
+        style="display:flex;flex-direction:column;gap:0;"
+      >
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:0.75rem;">
+          <div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--text);line-height:1.4;">{insight.titulo}</div>
+            <div style="display:flex;align-items:center;gap:0.4rem;margin-top:0.35rem;">
+              <span class={`badge ${
+                insight.tendencia === "up" ? "badge-green" :
+                insight.tendencia === "down" ? "badge-red" :
+                insight.tendencia === "opportunity" ? "badge-amber" :
+                "badge-blue"
+              }`}>
+                {insight.tendencia === "up" ? "↑ Tendência" :
+                 insight.tendencia === "down" ? "↓ Alerta" :
+                 insight.tendencia === "opportunity" ? "⭐ Oportunidade" :
+                 "Neutro"}
+              </span>
+              <span class="badge badge-gray">{insight.categoria}</span>
+            </div>
+          </div>
+          <div style={`font-size:1.75rem;flex-shrink:0;`}>
+            {insight.tendencia === "up" ? "📈" :
+             insight.tendencia === "down" ? "📉" :
+             insight.tendencia === "opportunity" ? "💡" : "📊"}
+          </div>
+        </div>
+
+        <div style="border-left:3px solid var(--border);padding-left:0.75rem;margin-bottom:0.75rem;">
+          <div style="font-size:1.1rem;font-weight:700;color:var(--text-muted);">{insight.metrica}</div>
+        </div>
+
+        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;flex:1;">
+          {insight.corpo}
+        </p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:0.75rem;">
+          {insight.tags.map((tag) => (
+            <span class="badge badge-gray">#{tag}</span>
+          ))}
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.75rem;border-top:1px solid var(--border);">
+          <div>
+            <div class="text-xs text-dim">📰 {insight.fonte}</div>
+            <div class="text-xs text-dim">{insight.data}</div>
+          </div>
+          <button
+            class="btn btn-secondary btn-sm"
+            onclick={`alert('Ação: ${insight.acao}\\n\\nEm produção, isso abriria o recurso relevante ou buscaria mais informações.')`}
+          >
+            {insight.acao} →
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Seção de análise personalizada -->
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-header">
+      <div class="card-title">🤖 Análise Personalizada da IA</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.75rem;">🎯 Perfil de Oportunidades – Fabio</div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          {[
+            { area: "Mercado de Habilitação", score: 92, cor: "green" },
+            { area: "Motorista de App", score: 78, cor: "blue" },
+            { area: "Conteúdo Digital CNH", score: 65, cor: "amber" },
+            { area: "Logística / Entregas", score: 70, cor: "blue" },
+          ].map((item) => (
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                <span class="text-sm">{item.area}</span>
+                <span style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">{item.score}/100</span>
+              </div>
+              <div class="progress-bar">
+                <div class={`progress-fill ${item.cor}`} style={`width:${item.score}%`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.75rem;">💬 Recomendação da IA</div>
+        <div style="padding:1rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;">
+          <p class="text-sm text-muted" style="margin:0;line-height:1.6;">
+            Com base nos editais monitorados e nas tendências de mercado, <strong style="color:var(--text)">a maior oportunidade agora está no mercado de habilitação</strong> — especialmente credenciamento de CFCs em São Paulo.
+            <br/><br/>
+            Priorize estudar para o edital do Detran SP (prazo: 15/07) e considere pesquisar parcerias com CFCs já credenciados para entender o modelo de negócio.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</AppLayout>
+
+<script>
+  // Filtro de categorias
+  const filtros = document.querySelectorAll<HTMLButtonElement>("#filtros-insight button");
+  const cards = document.querySelectorAll<HTMLElement>(".insight-full-card");
+
+  filtros.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filtros.forEach((b) => {
+        b.classList.remove("btn-primary", "active-filter");
+        b.classList.add("btn-secondary");
+      });
+      btn.classList.add("btn-primary", "active-filter");
+      btn.classList.remove("btn-secondary");
+
+      const categoria = btn.getAttribute("data-categoria");
+      cards.forEach((card) => {
+        if (categoria === "todas" || card.getAttribute("data-categoria") === categoria) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    });
+  });
+</script>

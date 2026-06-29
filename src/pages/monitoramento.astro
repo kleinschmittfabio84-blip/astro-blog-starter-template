@@ -1,0 +1,298 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import { MONITORED_SOURCES } from "../consts";
+
+const editaisEncontrados = [
+  {
+    id: "e1",
+    titulo: "Edital Nº 001/2025 – CFC Habilitação SP",
+    fonte: "Detran SP",
+    url: "https://www.detran.sp.gov.br",
+    publicado: "27/06/2025",
+    prazoInscricao: "15/07/2025",
+    dataProva: "10/08/2025",
+    status: "novo",
+    descricao: "Credenciamento de Centros de Formação de Condutores para região metropolitana de São Paulo.",
+  },
+  {
+    id: "e2",
+    titulo: "Edital Nº 012/2025 – Concurso Detran MG",
+    fonte: "Detran MG",
+    url: "https://www.detran.mg.gov.br",
+    publicado: "20/06/2025",
+    prazoInscricao: "02/07/2025",
+    dataProva: "25/07/2025",
+    status: "ativo",
+    descricao: "Seleção de examinadores de habilitação para interior de Minas Gerais.",
+  },
+  {
+    id: "e3",
+    titulo: "Edital Nº 008/2025 – Habilitação RJ",
+    fonte: "Detran RJ",
+    url: "https://www.detran.rj.gov.br",
+    publicado: "10/06/2025",
+    prazoInscricao: "30/06/2025",
+    dataProva: "15/07/2025",
+    status: "encerrado",
+    descricao: "Credenciamento de instrutores para exame prático de habilitação.",
+  },
+];
+
+const ultimaVerificacao = new Date().toLocaleString("pt-BR");
+---
+
+<AppLayout
+  title="Monitoramento de Editais"
+  subtitle="Acompanhamento automático de concursos e editais do Detran"
+  notificationCount={3}
+>
+  <!-- Status da verificação -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div style="font-size:0.9rem;font-weight:600;color:var(--text);">Status do Monitoramento</div>
+        <div class="status-indicator mt-1">
+          <span class="status-dot online"></span>
+          <span class="text-sm text-muted">Ativo · Última verificação: {ultimaVerificacao}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" id="btn-verificar">
+          🔄 Verificar Agora
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-add-source">
+          ➕ Adicionar Fonte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editais encontrados -->
+  <div class="page-grid">
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">📋 Editais Encontrados</div>
+        <div style="display:flex;gap:0.5rem;">
+          <span class="badge badge-green">{editaisEncontrados.filter(e => e.status === "novo").length} novo(s)</span>
+          <span class="badge badge-blue">{editaisEncontrados.filter(e => e.status === "ativo").length} ativo(s)</span>
+        </div>
+      </div>
+
+      <div class="edital-list">
+        {editaisEncontrados.map((edital) => (
+          <div class={`edital-item${edital.status === "novo" ? " new-edital" : ""}`}>
+            <span class={`edital-dot ${
+              edital.status === "novo" ? "new" :
+              edital.status === "ativo" ? "active" :
+              "closed"
+            }`}></span>
+            <div class="edital-info">
+              <div class="edital-name">{edital.titulo}</div>
+              <div class="edital-meta">
+                📍 {edital.fonte} · Publicado: {edital.publicado} ·
+                Inscrições até: <strong>{edital.prazoInscricao}</strong>
+                {edital.dataProva && <> · Prova: {edital.dataProva}</>}
+              </div>
+              <div class="edital-meta" style="margin-top:0.3rem;color:var(--text-dim)">
+                {edital.descricao}
+              </div>
+            </div>
+            <div class="edital-actions">
+              <span class={`badge ${
+                edital.status === "novo" ? "badge-blue" :
+                edital.status === "ativo" ? "badge-green" :
+                "badge-gray"
+              }`}>
+                {edital.status === "novo" ? "Novo" :
+                 edital.status === "ativo" ? "Ativo" : "Encerrado"}
+              </span>
+              <a href={edital.url} target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+                Ver →
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Fontes monitoradas -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🌐 Fontes Monitoradas</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;" id="sources-list">
+        {MONITORED_SOURCES.map((source) => (
+          <div class="source-item">
+            <div class="source-icon">🏛️</div>
+            <div class="source-info">
+              <div class="source-name">{source.name}</div>
+              <div class="source-url">{source.url}</div>
+              <div class="source-last-check">
+                <span class={`badge ${source.active ? "badge-green" : "badge-gray"}`}>
+                  {source.active ? "Ativo" : "Inativo"}
+                </span>
+                <span style="margin-left:0.4rem;" class="text-xs text-dim">{source.state}</span>
+              </div>
+            </div>
+            <div class="source-actions">
+              <label class="toggle" title={source.active ? "Desativar" : "Ativar"}>
+                <input type="checkbox" checked={source.active} />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Adicionar nova fonte -->
+    <div class="card" id="add-source-panel" style="display:none;">
+      <div class="card-header">
+        <div class="card-title">➕ Nova Fonte de Monitoramento</div>
+      </div>
+      <form id="add-source-form">
+        <div class="form-group">
+          <label class="form-label">Nome da Fonte</label>
+          <input
+            type="text"
+            class="form-input"
+            name="name"
+            placeholder="ex: Detran PR – Habilitação"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL do Site</label>
+          <input
+            type="url"
+            class="form-input"
+            name="url"
+            placeholder="https://www.detran.pr.gov.br"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select class="form-input" name="state">
+            <option value="SP">São Paulo (SP)</option>
+            <option value="RJ">Rio de Janeiro (RJ)</option>
+            <option value="MG">Minas Gerais (MG)</option>
+            <option value="RS">Rio Grande do Sul (RS)</option>
+            <option value="PR">Paraná (PR)</option>
+            <option value="SC">Santa Catarina (SC)</option>
+            <option value="BA">Bahia (BA)</option>
+            <option value="Nacional">Nacional</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Palavras-chave para monitorar</label>
+          <input
+            type="text"
+            class="form-input"
+            name="keywords"
+            placeholder="edital, habilitação, concurso, CFC"
+          />
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+          <button type="submit" class="btn btn-primary">Salvar Fonte</button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Histórico de verificações -->
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">📜 Histórico de Verificações</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Fontes Verificadas</th>
+            <th>Editais Encontrados</th>
+            <th>Novos</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-sm">{ultimaVerificacao}</td>
+            <td><span class="badge badge-blue">4</span></td>
+            <td>3</td>
+            <td><span class="badge badge-green">1 novo</span></td>
+            <td><span class="badge badge-green">Sucesso</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">28/06/2025 18:00</td>
+            <td><span class="badge badge-blue">4</span></td>
+            <td>2</td>
+            <td><span class="badge badge-gray">0 novos</span></td>
+            <td><span class="badge badge-green">Sucesso</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">28/06/2025 12:00</td>
+            <td><span class="badge badge-blue">4</span></td>
+            <td>2</td>
+            <td><span class="badge badge-gray">0 novos</span></td>
+            <td><span class="badge badge-green">Sucesso</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">27/06/2025 18:00</td>
+            <td><span class="badge badge-blue">4</span></td>
+            <td>3</td>
+            <td><span class="badge badge-blue">1 novo</span></td>
+            <td><span class="badge badge-green">Sucesso</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AppLayout>
+
+<script>
+  const btnVerificar = document.getElementById("btn-verificar");
+  const btnAddSource = document.getElementById("btn-add-source");
+  const addSourcePanel = document.getElementById("add-source-panel");
+  const btnCancel = document.getElementById("btn-cancel");
+  const addSourceForm = document.getElementById("add-source-form") as HTMLFormElement;
+
+  btnVerificar?.addEventListener("click", async () => {
+    if (!btnVerificar) return;
+    const original = btnVerificar.textContent;
+    btnVerificar.textContent = "⏳ Verificando...";
+    btnVerificar.setAttribute("disabled", "true");
+    try {
+      const res = await fetch("/api/editais");
+      const data = await res.json() as { found?: number };
+      btnVerificar.textContent = `✅ ${data.found ?? 0} edital(is) encontrado(s)`;
+    } catch {
+      btnVerificar.textContent = "❌ Erro na verificação";
+    } finally {
+      setTimeout(() => {
+        btnVerificar.textContent = original ?? "🔄 Verificar Agora";
+        btnVerificar.removeAttribute("disabled");
+      }, 3000);
+    }
+  });
+
+  btnAddSource?.addEventListener("click", () => {
+    if (addSourcePanel) {
+      addSourcePanel.style.display = addSourcePanel.style.display === "none" ? "block" : "none";
+    }
+  });
+
+  btnCancel?.addEventListener("click", () => {
+    if (addSourcePanel) addSourcePanel.style.display = "none";
+  });
+
+  addSourceForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+    const name = data.get("name") as string;
+    alert(`Fonte "${name}" adicionada! (Em produção, seria salva no banco de dados.)`);
+    form.reset();
+    if (addSourcePanel) addSourcePanel.style.display = "none";
+  });
+</script>
