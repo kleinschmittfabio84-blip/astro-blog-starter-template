@@ -1,0 +1,110 @@
+---
+import "../styles/global.css";
+import { SITE_TITLE, NAV_LINKS, OWNER_NAME, OWNER_EMAIL } from "../consts";
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  notificationCount?: number;
+  currentPath?: string;
+}
+
+const {
+  title,
+  subtitle,
+  notificationCount = 3,
+  currentPath = Astro.url.pathname,
+} = Astro.props;
+
+const pageTitle = `${title} · ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <meta name="description" content="Assistente de IA personalizado para Fabio" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex,nofollow" />
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">🤖</div>
+          <div class="sidebar-logo-text">
+            <span class="sidebar-logo-title">FabioAI</span>
+            <span class="sidebar-logo-sub">Assistente Pessoal</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="sidebar-nav-label">Navegação</div>
+          {NAV_LINKS.map((link) => (
+            <a
+              href={link.href}
+              class={currentPath === link.href ? "active" : ""}
+            >
+              <span class="nav-icon">{link.icon}</span>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-user">
+            <div class="sidebar-avatar">F</div>
+            <div class="sidebar-user-info">
+              <div class="sidebar-user-name">{OWNER_NAME}</div>
+              <div class="sidebar-user-email">{OWNER_EMAIL}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <header class="top-bar">
+          <div class="top-bar-left">
+            <div>
+              <div class="top-bar-title">{title}</div>
+              {subtitle && <div class="top-bar-subtitle">{subtitle}</div>}
+            </div>
+          </div>
+          <div class="top-bar-right">
+            <a href="/notificacoes" class="notification-badge" title="Notificações">
+              🔔
+              {notificationCount > 0 && (
+                <span class="badge-count">{notificationCount}</span>
+              )}
+            </a>
+            <div class="status-indicator">
+              <span class="status-dot online"></span>
+              <span class="text-xs text-muted">Online</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="page-content">
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Mark active nav links
+      const currentPath = window.location.pathname;
+      document.querySelectorAll(".sidebar-nav a").forEach((link) => {
+        const href = link.getAttribute("href");
+        if (href === currentPath || (href !== "/" && currentPath.startsWith(href!))) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,368 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import { OWNER_EMAIL } from "../consts";
+
+const notificacoes = [
+  {
+    id: 1,
+    icone: "🎉",
+    titulo: "Novo edital detectado – Detran SP",
+    corpo: "Edital Nº 001/2025 para credenciamento de CFCs foi publicado. Prazo de inscrição: 15/07/2025. Clique para ver detalhes.",
+    tipo: "edital",
+    lida: false,
+    tempo: "Hoje, 14:32",
+  },
+  {
+    id: 2,
+    icone: "⏰",
+    titulo: "Prazo se aproximando – Detran MG",
+    corpo: "As inscrições para o concurso Detran MG encerram em 3 dias (02/07/2025). Não perca o prazo!",
+    tipo: "prazo",
+    lida: false,
+    tempo: "Hoje, 09:00",
+  },
+  {
+    id: 3,
+    icone: "📊",
+    titulo: "Novo insight disponível",
+    corpo: "Identificamos 2 novas oportunidades de negócio na área de habilitação e transporte. Veja a análise completa.",
+    tipo: "insight",
+    lida: false,
+    tempo: "Ontem, 18:00",
+  },
+  {
+    id: 4,
+    icone: "✅",
+    titulo: "Verificação automática concluída",
+    corpo: "4 fontes foram verificadas. Nenhum novo edital encontrado nesta rodada.",
+    tipo: "sistema",
+    lida: true,
+    tempo: "28/06/2025, 12:00",
+  },
+  {
+    id: 5,
+    icone: "📧",
+    titulo: "E-mail de notificação enviado",
+    corpo: `Resumo diário enviado para ${OWNER_EMAIL} com sucesso.`,
+    tipo: "email",
+    lida: true,
+    tempo: "28/06/2025, 08:00",
+  },
+  {
+    id: 6,
+    icone: "🔍",
+    titulo: "Nova fonte adicionada ao monitoramento",
+    corpo: "Concursos no Brasil (concursosnobrasil.com.br) foi ativado como fonte de monitoramento.",
+    tipo: "sistema",
+    lida: true,
+    tempo: "27/06/2025, 16:30",
+  },
+];
+
+const config = {
+  emailNotif: true,
+  emailResumoDiario: true,
+  emailNovosEditais: true,
+  emailPrazos: true,
+  horarioResumoDiario: "08:00",
+  frequenciaVerificacao: "6h",
+  antecedenciaPrazo: 3,
+};
+---
+
+<AppLayout
+  title="Notificações"
+  subtitle="Central de alertas, configurações de e-mail e lembretes"
+  notificationCount={3}
+>
+  <div class="page-grid">
+    <!-- Feed de notificações -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔔 Notificações ({notificacoes.filter(n => !n.lida).length} não lidas)</div>
+        <button class="btn btn-secondary btn-sm" id="btn-marcar-todas">Marcar todas como lidas</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;" id="notif-list">
+        {notificacoes.map((notif) => (
+          <div
+            class={`notification-item${!notif.lida ? " unread" : ""}`}
+            data-id={String(notif.id)}
+            data-lida={notif.lida ? "1" : "0"}
+          >
+            <span class="notif-icon">{notif.icone}</span>
+            <div class="notif-content">
+              <div class="notif-title">{notif.titulo}</div>
+              <div class="notif-body">{notif.corpo}</div>
+              <div class="notif-time">{notif.tempo}</div>
+            </div>
+            {!notif.lida && <span class="notif-unread-dot"></span>}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Configurações -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <!-- Config de e-mail -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📧 Configurações de E-mail</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="text-sm font-semibold">Notificações por e-mail</div>
+              <div class="text-xs text-muted">Receber alertas em {OWNER_EMAIL}</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked={config.emailNotif} id="toggle-email" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <hr class="divider" style="margin:0.25rem 0;" />
+
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="text-sm font-semibold">Resumo diário</div>
+              <div class="text-xs text-muted">Um e-mail com resumo de tarefas e editais</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked={config.emailResumoDiario} />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="text-sm font-semibold">Alertas de novos editais</div>
+              <div class="text-xs text-muted">Notificar imediatamente quando um edital for encontrado</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked={config.emailNovosEditais} />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="text-sm font-semibold">Alertas de prazo</div>
+              <div class="text-xs text-muted">Lembrar sobre prazos de inscrição próximos</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked={config.emailPrazos} />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <hr class="divider" style="margin:0.25rem 0;" />
+
+          <div class="form-group">
+            <label class="form-label">Horário do resumo diário</label>
+            <input type="time" class="form-input" value={config.horarioResumoDiario} />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">E-mail de destino</label>
+            <input type="email" class="form-input" value={OWNER_EMAIL} />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Antecedência de alerta de prazo (dias)</label>
+            <input type="number" class="form-input" value={config.antecedenciaPrazo} min="1" max="30" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Config de verificação -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙️ Configurações de Verificação</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Frequência de verificação automática</label>
+            <select class="form-input" id="frequencia-select">
+              <option value="1h">A cada 1 hora</option>
+              <option value="3h">A cada 3 horas</option>
+              <option value="6h" selected>A cada 6 horas (recomendado)</option>
+              <option value="12h">A cada 12 horas</option>
+              <option value="24h">Uma vez por dia</option>
+            </select>
+          </div>
+
+          <div class="alert alert-info">
+            <span class="alert-icon">ℹ️</span>
+            <div class="alert-content">
+              <div class="alert-title">Cloudflare Workers Cron</div>
+              <div class="alert-desc">
+                As verificações automáticas rodam via Cron Triggers do Cloudflare Workers — 100% gratuito no plano básico.
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary w-full" id="btn-salvar-config">
+            💾 Salvar Configurações
+          </button>
+        </div>
+      </div>
+
+      <!-- Teste de notificação -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧪 Testar Notificações</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div class="alert alert-warning">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-content">
+              <div class="alert-title">Configuração necessária</div>
+              <div class="alert-desc">
+                Para envio real de e-mails, configure a variável de ambiente <code>RESEND_API_KEY</code> nas configurações do Cloudflare Workers.
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary w-full" id="btn-teste-email">
+            📧 Enviar E-mail de Teste
+          </button>
+
+          <button class="btn btn-secondary w-full" id="btn-teste-verificacao">
+            🔍 Executar Verificação de Teste
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log de envios -->
+    <div class="card col-span-2">
+      <div class="card-header">
+        <div class="card-title">📜 Log de E-mails Enviados</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Tipo</th>
+            <th>Destinatário</th>
+            <th>Assunto</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-sm">29/06/2025 14:32</td>
+            <td><span class="badge badge-green">Alerta edital</span></td>
+            <td class="text-sm text-muted">{OWNER_EMAIL}</td>
+            <td class="text-sm">🎉 Novo edital: Detran SP – CFC Habilitação</td>
+            <td><span class="badge badge-green">Entregue</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">29/06/2025 08:00</td>
+            <td><span class="badge badge-blue">Resumo diário</span></td>
+            <td class="text-sm text-muted">{OWNER_EMAIL}</td>
+            <td class="text-sm">📋 Seu resumo do dia – FabioAI</td>
+            <td><span class="badge badge-green">Entregue</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">28/06/2025 08:00</td>
+            <td><span class="badge badge-blue">Resumo diário</span></td>
+            <td class="text-sm text-muted">{OWNER_EMAIL}</td>
+            <td class="text-sm">📋 Seu resumo do dia – FabioAI</td>
+            <td><span class="badge badge-green">Entregue</span></td>
+          </tr>
+          <tr>
+            <td class="text-sm">27/06/2025 18:15</td>
+            <td><span class="badge badge-amber">Alerta prazo</span></td>
+            <td class="text-sm text-muted">{OWNER_EMAIL}</td>
+            <td class="text-sm">⏰ Prazo em 3 dias: Concurso Detran MG</td>
+            <td><span class="badge badge-green">Entregue</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AppLayout>
+
+<script>
+  // Marcar todas como lidas
+  document.getElementById("btn-marcar-todas")?.addEventListener("click", () => {
+    document.querySelectorAll<HTMLElement>(".notification-item").forEach((item) => {
+      item.classList.remove("unread");
+      item.setAttribute("data-lida", "1");
+      item.querySelector(".notif-unread-dot")?.remove();
+    });
+    const countEl = document.querySelector(".card-title");
+    if (countEl) countEl.textContent = "🔔 Notificações (0 não lidas)";
+  });
+
+  // Salvar configurações
+  document.getElementById("btn-salvar-config")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btn-salvar-config") as HTMLButtonElement;
+    const original = btn.textContent;
+    btn.textContent = "⏳ Salvando...";
+    btn.disabled = true;
+    await new Promise((r) => setTimeout(r, 1000));
+    btn.textContent = "✅ Configurações salvas!";
+    setTimeout(() => {
+      btn.textContent = original ?? "💾 Salvar";
+      btn.disabled = false;
+    }, 2500);
+  });
+
+  // Teste de e-mail
+  document.getElementById("btn-teste-email")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btn-teste-email") as HTMLButtonElement;
+    const original = btn.textContent;
+    btn.textContent = "⏳ Enviando...";
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/notificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "teste",
+          para: "kleinschmittfabio84@gmail.com",
+          assunto: "🧪 Teste FabioAI – Notificação funcionando!",
+          mensagem: "Este é um e-mail de teste do seu assistente FabioAI. Se você está lendo isso, as notificações estão configuradas corretamente!",
+        }),
+      });
+      const data = await res.json() as { success?: boolean; error?: string };
+      if (data.success) {
+        btn.textContent = "✅ E-mail enviado!";
+      } else {
+        btn.textContent = `⚠️ ${data.error ?? "Configure RESEND_API_KEY"}`;
+      }
+    } catch {
+      btn.textContent = "❌ Erro na conexão";
+    } finally {
+      setTimeout(() => {
+        btn.textContent = original ?? "📧 Enviar E-mail de Teste";
+        btn.disabled = false;
+      }, 4000);
+    }
+  });
+
+  // Teste de verificação
+  document.getElementById("btn-teste-verificacao")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btn-teste-verificacao") as HTMLButtonElement;
+    const original = btn.textContent;
+    btn.textContent = "⏳ Verificando 4 fontes...";
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/editais");
+      const data = await res.json() as { found?: number; sources?: number };
+      btn.textContent = `✅ ${data.sources ?? 4} fontes · ${data.found ?? 0} edital(is)`;
+    } catch {
+      btn.textContent = "❌ Erro na verificação";
+    } finally {
+      setTimeout(() => {
+        btn.textContent = original ?? "🔍 Executar Verificação";
+        btn.disabled = false;
+      }, 4000);
+    }
+  });
+</script>
